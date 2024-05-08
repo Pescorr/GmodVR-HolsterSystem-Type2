@@ -1,0 +1,13 @@
+{
+  "title": "[VR]holstersystem-test",
+  "type": "tool",
+  "tags": [
+    "fun",
+    "roleplay",
+    "realism"
+  ],
+  "ignore": [
+    ".gitattributes",
+    "security.md"
+  ]
+}
