@@ -116,6 +116,11 @@ hook.Add(
                             net.WriteBool(leftHand)
                             net.SendToServer()
                             surface.PlaySound(pouch_pickup_sound:GetString())
+                            if leftHand then
+                                LocalPlayer():ConCommand("vrmod_test_pickup_entteleport_left " .. wepclass)
+                            else
+                                LocalPlayer():ConCommand("vrmod_test_pickup_entteleport_right " .. wepclass)
+                            end
                         end
                     end
 
@@ -245,6 +250,7 @@ if SERVER then
                 spawnedEnt:Spawn()
                 spawnedEnt:SetPos(handPos)
                 spawnedEnt:SetAngles(handAng - Angle(4.9, 4, -3.5))
+                spawnedEnt:Activate(false)
                 if IsValid(spawnedEnt) then
                     pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
                     timer.Remove(ply:UserID() .. "followAndTryPickup")
