@@ -59,7 +59,7 @@ hook.Add(
 
         for i = 1, 5 do
             local holster_size = vgui.Create("DNumSlider", MenuTab16)
-            holster_size:SetPos(20, 130 + (i - 1) * 30)
+            holster_size:SetPos(20, 160 + (i - 1) * 30)
             holster_size:SetSize(370, 25)
             holster_size:SetText(holsterPositions[i].part .. " (" .. holsterPositions[i].side .. ") Holster Size")
             holster_size:SetMin(1)
@@ -89,6 +89,11 @@ hook.Add(
         dropmode_checkbox:SetText("Trash Weapon on Drop")
         dropmode_checkbox:SetConVar("vrmod_weapondrop_trashwep")
         dropmode_checkbox:SizeToContents()
+        local vrmod_pouch_lefthandwep_enable = MenuTab12:Add("DCheckBoxLabel")
+        vrmod_pouch_lefthandwep_enable:SetPos(20, 100)
+        vrmod_pouch_lefthandwep_enable:SetText("vrmod_pouch_lefthandwep_enable")
+        vrmod_pouch_lefthandwep_enable:SetConVar("vrmod_pouch_lefthandwep_enable")
+        vrmod_pouch_lefthandwep_enable:SizeToContents()
         -- vrmod_pouch_weapon_1からvrmod_pouch_weapon_5を操作するメニュー項目の追加
         for i = 1, 5 do
             local weapon_textentry = vgui.Create("DTextEntry", MenuTab12)

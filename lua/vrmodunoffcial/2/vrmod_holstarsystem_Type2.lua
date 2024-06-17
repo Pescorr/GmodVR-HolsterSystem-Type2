@@ -8,8 +8,7 @@ local pouch_initial_positions = {}
 local pouch_sizes = {}
 local pouch_enabled = CreateClientConVar("vrmod_pouch_enabled", 1, true, FCVAR_ARCHIVE, nil, 0, 1) -- 新しく追加したconvar
 local pouch_visible_name = CreateClientConVar("vrmod_pouch_visiblename", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
---local pouch_leftwepenable = CreateClientConVar("vrmod_pouch_leftweapon_enable", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
-local pouch_visible_hud = CreateClientConVar("vrmod_pouch_visiblename_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+local pouch_lefthand_weapon_enable = CreateClientConVar("vrmod_pouch_lefthandwep_enable", "1", true, FCVAR_ARCHIVE)local pouch_visible_hud = CreateClientConVar("vrmod_pouch_visiblename_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 --local pouch_entitymode = CreateClientConVar("vrmod_pouch_entitymode_enable", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 local pouch_saved_positions = {}
 local pouch_locked = {}
@@ -97,7 +96,7 @@ hook.Add(
         end
 
         local function equipWeaponOrEntity(leftHand)
-            if not pouch_enabled:GetBool() then return end -- ホルスター機能が無効の場合は処理を行わない
+            if not pouch_enabled:GetBool() then return end
             if not g_VR.active then return end
             for i = 1, pouch_slots do
                 local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
@@ -105,8 +104,14 @@ hook.Add(
                     local wepclass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
                     if wepclass ~= "" then
                         if weapons.Get(wepclass) then
+                            if leftHand and not pouch_lefthand_weapon_enable:GetBool() then return end
                             LocalPlayer():ConCommand("use " .. wepclass)
-                            LocalPlayer():ConCommand("vrmod_lefthand " .. (leftHand and "1" or "0"))
+                            if leftHand and string.find(wepclass, "vr") then
+                                LocalPlayer():ConCommand("vrmod_LeftHandmode 0")
+                            else
+                                LocalPlayer():ConCommand("vrmod_lefthand " .. (leftHand and "1" or "0"))
+                            end
+
                             surface.PlaySound(pouch_pickup_sound:GetString())
                         else
                             net.Start("vrmod_test_spawn_entity")
