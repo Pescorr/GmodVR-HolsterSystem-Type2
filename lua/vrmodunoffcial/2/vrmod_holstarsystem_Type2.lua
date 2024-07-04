@@ -254,7 +254,7 @@ if SERVER then
                 if not IsValid(spawnedEnt) then return end
                 spawnedEnt:Spawn()
                 spawnedEnt:SetPos(handPos)
-                spawnedEnt:SetAngles(handAng - Angle(4.9, 4, -3.5))
+                spawnedEnt:SetAngles(handAng)
                 spawnedEnt:Activate(false)
                 if IsValid(spawnedEnt) then
                     pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
