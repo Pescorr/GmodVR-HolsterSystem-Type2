@@ -4,7 +4,7 @@ if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 hook.Add(
     "VRMod_Menu",
-    "addsettings04",
+    "addsettings02",
     function(frame)
         --Settings02 Start
         --add VRMod_Menu Settings02 propertysheet start

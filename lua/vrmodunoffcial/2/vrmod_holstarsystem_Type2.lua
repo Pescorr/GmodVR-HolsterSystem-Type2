@@ -8,7 +8,8 @@ local pouch_initial_positions = {}
 local pouch_sizes = {}
 local pouch_enabled = CreateClientConVar("vrmod_pouch_enabled", 1, true, FCVAR_ARCHIVE, nil, 0, 1) -- 新しく追加したconvar
 local pouch_visible_name = CreateClientConVar("vrmod_pouch_visiblename", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
-local pouch_lefthand_weapon_enable = CreateClientConVar("vrmod_pouch_lefthandwep_enable", "1", true, FCVAR_ARCHIVE)local pouch_visible_hud = CreateClientConVar("vrmod_pouch_visiblename_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+local pouch_lefthand_weapon_enable = CreateClientConVar("vrmod_pouch_lefthandwep_enable", "1", true, FCVAR_ARCHIVE)
+local pouch_visible_hud = CreateClientConVar("vrmod_pouch_visiblename_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 --local pouch_entitymode = CreateClientConVar("vrmod_pouch_entitymode_enable", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 local pouch_saved_positions = {}
 local pouch_locked = {}
@@ -44,6 +45,8 @@ hook.Add(
         local ply = LocalPlayer()
         if not g_VR.active then return end
         if not g_VR.threePoints then return end
+        if not IsValid(ply) then return end
+        if not ply:Alive() then return end
         if ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Spine")) == nil then return end
         if ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Pelvis")) == nil then return end
         if not g_VR.tracking.hmd then return end
@@ -66,11 +69,22 @@ hook.Add(
         if not pouch_enabled:GetBool() then return end -- ホルスター機能が無効の場合は処理を行わない
         local function storeWeapon(leftHand)
             for i = 1, pouch_slots do
-                if pouch_locked[i] then continue end
                 local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
                 if hand_pos:DistToSqr(pouch_positions[i]) < (pouch_sizes[i] * pouch_sizes[i]) then
+                    local activeWeapon = LocalPlayer():GetActiveWeapon()
+                    if IsValid(activeWeapon) and activeWeapon:GetClass() ~= "weapon_vrmod_empty" and ((leftHand and GetConVar("vrmod_lefthand"):GetBool()) or (not leftHand and not GetConVar("vrmod_lefthand"):GetBool())) then
+                        if not pouch_locked[i] then
+                            LocalPlayer():ConCommand("vrmod_pouch_weapon_" .. i .. " " .. activeWeapon:GetClass())
+                        end
+
+                        LocalPlayer():ConCommand("use weapon_vrmod_empty")
+
+                        return
+                    end
+
                     local heldEntity = leftHand and g_VR.heldEntityLeft or g_VR.heldEntityRight
                     if IsValid(heldEntity) then
+                        if pouch_locked[i] then return end
                         LocalPlayer():ConCommand("vrmod_pouch_weapon_" .. i .. " " .. heldEntity:GetClass())
                         heldEntity:Remove() -- エンティティを消去
                         if leftHand then
@@ -78,14 +92,6 @@ hook.Add(
                         else
                             g_VR.heldEntityRight = nil
                         end
-
-                        return
-                    end
-
-                    local activeWeapon = LocalPlayer():GetActiveWeapon()
-                    if IsValid(activeWeapon) and activeWeapon:GetClass() ~= "weapon_vrmod_empty" and ((leftHand and GetConVar("vrmod_lefthand"):GetBool()) or (not leftHand and not GetConVar("vrmod_lefthand"):GetBool())) then
-                        LocalPlayer():ConCommand("vrmod_pouch_weapon_" .. i .. " " .. activeWeapon:GetClass())
-                        LocalPlayer():ConCommand("use weapon_vrmod_empty")
 
                         return
                     end
@@ -230,7 +236,7 @@ hook.Add(
             local entClass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
             if entClass ~= "" then
                 local eyeAng = EyeAngles()
-                eyeAng:RotateAroundAxis(eyeAng:Right(), 90)
+                eyeAng:RotateAroundAxis(eyeAng:Right(), 60)
                 cam.Start3D2D(pos, eyeAng, 0.1)
                 draw.SimpleText(entClass, "CloseCaption_Normal", 0, 0, Color(108, 81, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                 cam.End3D2D()
